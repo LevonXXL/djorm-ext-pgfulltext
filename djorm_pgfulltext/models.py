@@ -192,23 +192,8 @@ class SearchManagerMixIn(object):
             where_sql
         )
 
-        if not transaction.is_managed(using=using):
-            transaction.enter_transaction_management(using=using)
-            forced_managed = True
-        else:
-            forced_managed = False
-
         cursor = connection.cursor()
         cursor.execute(sql, params)
-
-        try:
-            if forced_managed:
-                transaction.commit(using=using)
-            else:
-                transaction.commit_unless_managed(using=using)
-        finally:
-            if forced_managed:
-                transaction.leave_transaction_management(using=using)
 
     def _find_text_fields(self):
         fields = [f for f in self.model._meta.fields
